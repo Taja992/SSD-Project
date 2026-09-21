@@ -81,6 +81,13 @@ sbom.spdx.json
 !.github/**/*.sarif
 
 
+# --- Claude Code (local assistant context) --------------------------
+# Working notes for the AI assistant, not part of the deliverable.
+# NOTE: .claude/settings.json is often SHARED by teams deliberately —
+# un-ignore it if the group wants the same permissions and rules.
+CLAUDE.md
+.claude/
+
 # --- Editors / OS ---------------------------------------------------
 .idea/
 *.swp

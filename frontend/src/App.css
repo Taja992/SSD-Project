@@ -276,3 +276,54 @@
 }
 
 .state[data-tone="danger"] { color: var(--danger); }
+
+/* --- Toasts -------------------------------------------------------
+   Feedback on whether the CONTROL behaved correctly. A 403 we expected
+   is amber (a pass), not red — red is reserved for a real failure.  */
+
+.toasts {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(420px, calc(100vw - 40px));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font: 12px/1.45 var(--mono);
+  animation: toast-in 0.18s ease-out;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.toast[data-tone="ok"]     { border-left-color: var(--ok); }
+.toast[data-tone="warn"]   { border-left-color: var(--warn); }
+.toast[data-tone="danger"] { border-left-color: var(--danger); }
+
+.toast-status {
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+
+.toast[data-tone="ok"]     .toast-status { background: var(--ok-bg);     color: var(--ok); }
+.toast[data-tone="warn"]   .toast-status { background: var(--warn-bg);   color: var(--warn); }
+.toast[data-tone="danger"] .toast-status { background: var(--danger-bg); color: var(--danger); }
+
+.toast-msg { color: var(--text); }

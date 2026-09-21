@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Vms.Api.Api;
+using Vms.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,7 +96,24 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod());
 });
 
+// Enums cross the wire as STRINGS ("High"), not integers (3) — the same
+// reasoning as storing them as strings in the database. A number in a request
+// body is a magic value whose meaning silently changes if the enum is ever
+// reordered, and the API already RETURNS strings, so accepting integers would
+// make it asymmetric: read "High", write 3.
+//
+// Note this does NOT weaken validation. An unknown string is rejected by the
+// converter, and [EnumDataType] still rejects a defined-but-out-of-range value.
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(
+        new System.Text.Json.Serialization.JsonStringEnumConverter());
+});
+
 builder.Services.AddOpenApi();
+builder.Services.AddValidation();
+builder.Services.AddVmsPersistence(builder.Configuration);
+builder.Services.AddVmsApplication();
 
 var app = builder.Build();
 
@@ -122,5 +141,8 @@ app.MapGet("/api/me", (ClaimsPrincipal user) => Results.Ok(new
 // PM only. This is the endpoint that proves 403 works.
 app.MapGet("/api/admin/ping", () => Results.Ok(new { pong = true }))
    .RequireAuthorization("PmOnly");
+
+app.MapFindingsApi();
+
 
 app.Run();

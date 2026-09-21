@@ -499,6 +499,9 @@
     {
       "id": "fcf2758b-a90c-4a92-b2f7-222e16c636db",
       "username": "analyst.test",
+      "firstName": "Analyst",
+      "lastName": "Test",
+      "email": "analyst@vms.local",
       "emailVerified": false,
       "createdTimestamp": 1789988081261,
       "enabled": true,
@@ -525,6 +528,9 @@
     {
       "id": "e55e8447-1e90-4045-8593-5aa7daa36aa9",
       "username": "auditor.test",
+      "firstName": "auditor",
+      "lastName": "test",
+      "email": "auditor@vms.local",
       "emailVerified": false,
       "createdTimestamp": 1789988103723,
       "enabled": true,
@@ -551,6 +557,9 @@
     {
       "id": "6a02a886-fc4b-4225-8781-31fdab071d4a",
       "username": "dev.test",
+      "firstName": "dev",
+      "lastName": "test",
+      "email": "dev@vms.local",
       "emailVerified": false,
       "createdTimestamp": 1789987865637,
       "enabled": true,
@@ -577,6 +586,9 @@
     {
       "id": "89a8528c-a2f7-434f-8b42-49135017a5e2",
       "username": "pm.test",
+      "firstName": "pm",
+      "lastName": "test",
+      "email": "pm@vms.local",
       "emailVerified": false,
       "createdTimestamp": 1789988053990,
       "enabled": true,
