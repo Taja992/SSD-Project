@@ -1,122 +1,214 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useAuth } from "react-oidc-context";
+import { useState } from "react";
+import { apiUrl } from "./auth";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+/** Roles Keycloak hands everyone. Not evidence that authorization works. */
+const INHERITED_ROLES = new Set([
+  "offline_access",
+  "uma_authorization",
+  "default-roles-vms",
+]);
+
+type Probe = {
+  path: string;
+  label: string;
+  /** What a correctly-configured API returns for THIS user. */
+  expect: (roles: string[]) => number;
+};
+
+const PROBES: Probe[] = [
+  {
+    path: "/api/me",
+    label: "any authenticated staff",
+    expect: () => 200,
+  },
+  {
+    path: "/api/admin/ping",
+    label: "PM only",
+    // A Developer being refused here is the proof, not a failure.
+    expect: (roles) => (roles.includes("PM") ? 200 : 403),
+  },
+];
+
+type Result = {
+  path: string;
+  status: number;
+  body: string;
+  expected: number;
+};
+
+export default function App() {
+  const auth = useAuth();
+  const [result, setResult] = useState<Result | null>(null);
+  const [pending, setPending] = useState<string | null>(null);
+
+  const roles: string[] =
+    (auth.user?.profile as { realm_access?: { roles?: string[] } })
+      ?.realm_access?.roles ?? [];
+
+  const call = async (probe: Probe) => {
+    setPending(probe.path);
+    try {
+      const res = await fetch(`${apiUrl}${probe.path}`, {
+        headers: { Authorization: `Bearer ${auth.user?.access_token}` },
+      });
+      const raw = await res.text();
+      let body = raw;
+      try {
+        body = JSON.stringify(JSON.parse(raw), null, 2);
+      } catch {
+        // Not JSON (403 bodies are often empty) — show it verbatim.
+      }
+      setResult({
+        path: probe.path,
+        status: res.status,
+        body: body || "(empty response body)",
+        expected: probe.expect(roles),
+      });
+    } catch (e) {
+      setResult({
+        path: probe.path,
+        status: 0,
+        body:
+          e instanceof Error ? e.message : "Network error — is the API running?",
+        expected: probe.expect(roles),
+      });
+    } finally {
+      setPending(null);
+    }
+  };
+
+  if (auth.isLoading) {
+    return <div className="state">authenticating…</div>;
+  }
+
+  if (auth.error) {
+    return (
+      <div className="state" data-tone="danger">
+        {auth.error.message}
+      </div>
+    );
+  }
+
+  if (!auth.isAuthenticated) {
+    return (
+      <div className="gate">
+        <div className="gate-card">
+          <h1>Vulnerability Management</h1>
+          <p>Sign in to continue.</p>
+          <button
+            className="btn-primary"
+            onClick={() => void auth.signinRedirect()}
+          >
+            Sign in with Keycloak
+          </button>
+          <div className="gate-foot">
+            This application never sees your password.
+            <br />
+            Authentication is delegated to Keycloak.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const username = auth.user?.profile.preferred_username ?? "unknown";
+  const correct = result !== null && result.status === result.expected;
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="shell">
+      <header className="masthead">
+        <h1 className="wordmark">
+          vms<span>/</span>identity
+        </h1>
+        <span className="phase">step 2 · identity spine</span>
+      </header>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      <section className="identity">
+        <div className="identity-top">
+          <div>
+            <span className="who-label">authenticated as</span>
+            <p className="who">{username}</p>
+          </div>
+          <button className="btn-quiet" onClick={() => void auth.removeUser()}>
+            sign out
+          </button>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+
+        <div className="roles">
+          {roles.length === 0 && <span className="role">no roles</span>}
+          {roles.map((r) => (
+            <span
+              key={r}
+              className="role"
+              data-app={!INHERITED_ROLES.has(r)}
+              title={
+                INHERITED_ROLES.has(r)
+                  ? "Inherited from Keycloak defaults — grants nothing in this application"
+                  : "Application role — enforced by the API"
+              }
+            >
+              {r}
+            </span>
+          ))}
         </div>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <p className="section-label">authorization probes</p>
+      <p className="section-note">
+        The API decides. This page only asks — hiding a button is not a
+        security control.
+      </p>
+
+      <div className="probes">
+        {PROBES.map((p) => (
+          <button
+            key={p.path}
+            className="probe"
+            disabled={pending !== null}
+            onClick={() => void call(p)}
+          >
+            <span className="probe-method">GET</span>
+            <span className="probe-path">{p.path}</span>
+            <span className="probe-expect">
+              {pending === p.path ? "…" : `expect ${p.expect(roles)} · ${p.label}`}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {result && (
+        <div className="result">
+          <div className="result-head">
+            <span
+              className="status"
+              data-tone={
+                result.status === 200
+                  ? "ok"
+                  : result.status === 403
+                    ? "warn"
+                    : "danger"
+              }
+            >
+              {result.status || "ERR"}
+            </span>
+            <span className="verdict">
+              {correct ? (
+                <>
+                  <strong>as expected</strong> — the control behaved correctly
+                </>
+              ) : (
+                <>
+                  <strong>unexpected</strong> — expected {result.expected}
+                </>
+              )}
+            </span>
+          </div>
+          {/* Rendered as text, never dangerouslySetInnerHTML — T-ER-02 */}
+          <pre className="result-body">{result.body}</pre>
+        </div>
+      )}
+    </div>
+  );
 }
-
-export default App

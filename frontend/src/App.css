@@ -1,184 +1,278 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
+/* ===================================================================
+   App layout — console register.
+   Every rule here earns its place; nothing is decorative.
+   =================================================================== */
+
+.shell {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* --- Masthead ---------------------------------------------------- */
+
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 32px;
+}
+
+.wordmark {
+  font: 600 15px/1 var(--mono);
+  color: var(--text-strong);
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+
+.wordmark span { color: var(--info); }
+
+.phase {
+  font: 11px/1 var(--mono);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* --- Identity panel ---------------------------------------------- */
+
+.identity {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
   margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
+.identity-top {
   display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-#next-steps {
+.who {
+  font: 600 20px/1.2 var(--mono);
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.who-label {
+  font: 11px/1 var(--mono);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.roles {
   display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 14px;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+/* A role is a claim from a signed token — show it as data, not a label. */
+.role {
+  font: 500 12px/1 var(--mono);
+  padding: 5px 9px;
+  border-radius: var(--radius);
+  background: var(--info-bg);
+  color: var(--info);
+  border: 1px solid transparent;
 }
 
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
+/* Roles that grant real authority read differently from inherited defaults. */
+.role[data-app="true"] {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 30%, transparent);
+}
+
+/* --- Probes ------------------------------------------------------ */
+
+.section-label {
+  font: 11px/1 var(--mono);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 4px;
+}
+
+.section-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+}
+
+.probes {
+  display: grid;
   gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
+  margin-bottom: 24px;
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
+.probe {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+  text-align: left;
+  padding: 14px 16px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: 13px/1.3 var(--mono);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
 }
+
+.probe:hover:not(:disabled) {
+  border-color: var(--info);
+  background: var(--bg-sunken);
+}
+
+.probe:disabled { opacity: 0.55; cursor: wait; }
+
+.probe-method {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.probe-path { color: var(--text-strong); flex: 1; }
+
+.probe-expect {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* --- Result ------------------------------------------------------ */
+
+.result {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-sunken);
+}
+
+.result-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  font: 12px/1 var(--mono);
+  flex-wrap: wrap;
+}
+
+.status {
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius);
+}
+
+.status[data-tone="ok"]     { background: var(--ok-bg);     color: var(--ok); }
+.status[data-tone="warn"]   { background: var(--warn-bg);   color: var(--warn); }
+.status[data-tone="danger"] { background: var(--danger-bg); color: var(--danger); }
+
+/* The verdict line is the point of this screen: it says whether the
+   security control behaved correctly, which is not the same as
+   whether the request succeeded. */
+.verdict { color: var(--text-muted); font-size: 12px; }
+.verdict strong { color: var(--text); font-weight: 600; }
+
+.result-body {
+  margin: 0;
+  padding: 14px;
+  font: 12px/1.6 var(--mono);
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 280px;
+  overflow: auto;
+}
+
+/* --- Sign-in ----------------------------------------------------- */
+
+.gate {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.gate-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+}
+
+.gate-card h1 {
+  font: 600 18px/1.3 var(--mono);
+  color: var(--text-strong);
+  margin: 0 0 8px;
+}
+
+.gate-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 24px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px 16px;
+  font: 600 14px/1 var(--sans);
+  color: var(--bg);
+  background: var(--info);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+
+.btn-primary:hover { opacity: 0.9; }
+
+.btn-quiet {
+  padding: 8px 12px;
+  font: 12px/1 var(--mono);
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.btn-quiet:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* Tells the user where the password actually goes. */
+.gate-foot {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-soft);
+  font: 11px/1.5 var(--mono);
+  color: var(--text-muted);
+}
+
+.state {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  font: 13px/1 var(--mono);
+  color: var(--text-muted);
+}
+
+.state[data-tone="danger"] { color: var(--danger); }
