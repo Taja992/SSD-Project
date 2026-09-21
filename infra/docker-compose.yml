@@ -1,0 +1,40 @@
+name: vms
+
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      # 127.0.0.1 prefix = localhost ONLY, not your whole network.
+      # Without it, Docker exposes this to anyone on your wifi.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
