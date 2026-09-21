@@ -45,6 +45,7 @@ coverage*.xml
 *.coverage
 *.trx
 BenchmarkDotNet.Artifacts/
+**/appsettings.Development.json
 
 
 # --- Node / React ---------------------------------------------------

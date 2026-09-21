@@ -1,41 +1,126 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+var authority = builder.Configuration["Keycloak:Authority"]
+    ?? throw new InvalidOperationException("Keycloak:Authority is not configured.");
+var audience = builder.Configuration["Keycloak:Audience"]
+    ?? throw new InvalidOperationException("Keycloak:Audience is not configured.");
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = authority;
+        options.Audience = audience;
+        options.RequireHttpsMetadata =
+            builder.Configuration.GetValue("Keycloak:RequireHttpsMetadata", true);
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            // T-API-01: every one of these must be on. The signature check is
+            // what makes the rest trustworthy.
+            ValidateIssuer           = true,
+            ValidIssuer              = authority,
+            ValidateAudience         = true,
+            ValidAudience            = audience,
+            ValidateLifetime         = true,
+            ValidateIssuerSigningKey = true,
+            ClockSkew                = TimeSpan.FromSeconds(30),
+
+            // T-API-01: pin the algorithm. Without this a token claiming
+            // "alg": "none" — or an HS256 token signed with the PUBLIC key —
+            // can be accepted. This single line closes both attacks.
+            ValidAlgorithms = [SecurityAlgorithms.RsaSha256],
+
+            // Keycloak nests roles under realm_access.roles, so the default
+            // role claim lookup finds nothing. Map it explicitly.
+            RoleClaimType = ClaimTypes.Role,
+            NameClaimType = "preferred_username"
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            // Flatten realm_access.roles into standard role claims so
+            // [Authorize(Roles = "PM")] and policies work normally.
+            OnTokenValidated = context =>
+            {
+                var identity = context.Principal?.Identity as ClaimsIdentity;
+                var realmAccess = context.Principal?.FindFirst("realm_access")?.Value;
+
+                if (identity is not null && realmAccess is not null)
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(realmAccess);
+                    if (doc.RootElement.TryGetProperty("roles", out var roles))
+                    {
+                        foreach (var role in roles.EnumerateArray())
+                        {
+                            var name = role.GetString();
+                            if (!string.IsNullOrWhiteSpace(name))
+                                identity.AddClaim(new Claim(ClaimTypes.Role, name));
+                        }
+                    }
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+// Authorization policies. Roles come ONLY from the validated token — never
+// from a header or body (T-API-05).
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("PmOnly",      p => p.RequireRole("PM"));
+    options.AddPolicy("AnalystOrPm", p => p.RequireRole("Analyst", "PM"));
+    options.AddPolicy("AnyStaff",    p => p.RequireRole("Developer", "Analyst", "PM", "Auditor"));
+
+    // Deny by default: every endpoint needs authentication unless it opts out
+    // with .AllowAnonymous(). Principle 1 in the project plan.
+    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization
+        .AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+// T-API-13: explicit origin allow-list. Never AllowAnyOrigin with credentials.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("spa", policy => policy
+        .WithOrigins(allowedOrigins)
+        .AllowAnyHeader()
+        .AllowAnyMethod());
+});
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
+app.UseCors("spa");
+app.UseAuthentication();   // order matters: authenticate...
+app.UseAuthorization();    // ...then authorize.
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// Public — the only anonymous endpoint for now.
+app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }))
+   .AllowAnonymous();
 
-app.MapGet("/weatherforecast", () =>
+// Any authenticated staff member. Proves the token chain works.
+app.MapGet("/api/me", (ClaimsPrincipal user) => Results.Ok(new
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    name  = user.Identity?.Name,
+    roles = user.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray()
+})).RequireAuthorization("AnyStaff");
+
+// PM only. This is the endpoint that proves 403 works.
+app.MapGet("/api/admin/ping", () => Results.Ok(new { pong = true }))
+   .RequireAuthorization("PmOnly");
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
