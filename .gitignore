@@ -1,0 +1,103 @@
+# ===================================================================
+# .gitignore — SSD Project
+# Lands in commit #1, before any secret has ever existed.
+# ===================================================================
+
+# --- Personal docs (excluded by choice) -----------------------------
+# Working notes and reference material, kept local only.
+# NOTE: the exam hand-in requires a threat model. Before submitting,
+# either un-ignore this or copy the deliverables somewhere tracked.
+/docs/
+
+
+# --- Secrets — never commit any of these ----------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.crt
+secrets.json
+appsettings.*.Local.json
+appsettings.Development.json
+**/keycloak/*-secret*
+*.local.yml
+*.local.yaml
+
+
+# --- .NET -----------------------------------------------------------
+bin/
+obj/
+out/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.user
+*.suo
+*.userprefs
+.vs/
+TestResults/
+coverage*.json
+coverage*.xml
+*.coverage
+*.trx
+BenchmarkDotNet.Artifacts/
+
+
+# --- Node / React ---------------------------------------------------
+node_modules/
+dist/
+build/
+.vite/
+.next/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+
+
+# --- Docker / infra -------------------------------------------------
+docker-compose.override.yml
+**/pgdata/
+**/postgres-data/
+**/keycloak-data/
+
+
+# --- Security tooling output ----------------------------------------
+# Scan results can contain exploitable detail about our own system —
+# treat them like findings data, not build artifacts.
+trivy-results.*
+*.sarif
+gitleaks-report.*
+dependency-check-report.*
+sbom.json
+sbom.spdx.json
+!.github/**/*.sarif
+
+
+# --- Editors / OS ---------------------------------------------------
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VS Code: keep shared config, drop personal overrides
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+.vscode/settings.local.json
+
+
+# --- Misc -----------------------------------------------------------
+*.log
+tmp/
+temp/
+.scratch/
