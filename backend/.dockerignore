@@ -1,0 +1,17 @@
+# Anything listed here never reaches the Docker build context, so no COPY
+# can ship it - not even by accident with a broad "COPY . .".
+
+# Local build output - the image builds its own.
+**/bin/
+**/obj/
+
+# Real secrets. Without this line the dev connection string ships in the image.
+**/appsettings.Development.json
+**/.env
+**/.env.*
+
+# Not needed to build the API.
+**/*.user
+tests/
+Dockerfile
+.dockerignore
