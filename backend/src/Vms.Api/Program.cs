@@ -117,6 +117,19 @@ builder.Services.AddVmsApplication();
 
 var app = builder.Build();
 
+// Security headers on EVERY response, including 401s and errors. Found by the
+// DAST scan (ZAP 10021, 90004).
+//   nosniff     - the browser must trust our Content-Type, never guess it.
+//   same-origin - other sites cannot embed our responses with <img>/<script>.
+//                 CORS fetches from the SPA are unaffected.
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.XContentTypeOptions = "nosniff";
+    context.Response.Headers["Cross-Origin-Resource-Policy"] = "same-origin";
+    await next();
+});
+
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
