@@ -1,0 +1,64 @@
+name: DAST
+
+on:
+  pull_request:
+    branches: [main]
+  # Weekly, even with no new commits: ZAP's rules improve, and a new rule can
+  # find an old weakness.
+  schedule:
+    - cron: "41 3 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  zap:
+    name: DAST - ZAP API scan
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: backend/global.json
+          cache: true
+          cache-dependency-path: backend/**/packages.lock.json
+
+      # The build writes the OpenAPI document to obj/Vms.Api.json. ZAP reads it
+      # to learn every endpoint. Production never serves it.
+      - name: Generate OpenAPI document
+        working-directory: backend
+        run: |
+          dotnet restore --locked-mode
+          dotnet build src/Vms.Api --configuration Release --no-restore
+          mkdir -p "$GITHUB_WORKSPACE/zap"
+          cp src/Vms.Api/obj/Vms.Api.json "$GITHUB_WORKSPACE/zap/openapi.json"
+
+      # The SAME image the pipeline publishes, in Production mode.
+      - name: Start the API
+        run: |
+          docker build -t vms-api:dast backend
+          docker network create dast
+          docker run -d --name api --network dast -p 127.0.0.1:8080:8080 vms-api:dast
+
+      - name: Wait until the API is up
+        run: |
+          for _ in $(seq 1 30); do
+            if curl -fs http://127.0.0.1:8080/api/health; then exit 0; fi
+            sleep 2
+          done
+          docker logs api
+          exit 1
+
+      # Exit code: 0 = clean, 1 = FAIL, 2 = WARN. Anything but 0 fails the job.
+      - name: ZAP API scan
+        run: >
+          docker run --rm --network dast -v "$GITHUB_WORKSPACE/zap:/zap/wrk:ro"
+          ghcr.io/zaproxy/zaproxy:2.17.0@sha256:781a2bdaea47324e7bab583e2263f21d257b0aee61ed51521a5be45f5f5081ef
+          zap-api-scan.py -t openapi.json -f openapi -O http://api:8080
+
+      - name: API logs
+        if: always()
+        run: docker logs api
