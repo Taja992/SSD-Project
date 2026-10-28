@@ -1,0 +1,40 @@
+version: 2
+
+updates:
+  - package-ecosystem: nuget
+    directory: /backend
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      nuget-minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # v15+ needs a commercial licence. Accepted risk, see .trivyignore.yaml.
+      - dependency-name: AutoMapper
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: npm # pnpm uses the npm ecosystem
+    directory: /frontend
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
