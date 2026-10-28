@@ -1,0 +1,9 @@
+# Vulnerabilities we have KNOWINGLY accepted. Every entry needs a reason and
+# an expiry date. After the date the gate fails again and forces a decision.
+
+vulnerabilities:
+  # AutoMapper 14.0.0 - DoS via uncontrolled recursion (= GHSA-rvv3-g6hj-g44x).
+  # Fixed in 15.1.1+, but v15+ needs a commercial licence. Accepted risk T-SC-04.
+  - id: CVE-2026-32933
+    statement: Mitigated with MaxDepth(5) in MappingProfile.cs. Revisit by the expiry date.
+    expired_at: 2028-01-01
