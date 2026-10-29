@@ -37,11 +37,18 @@ jobs:
           cp src/Vms.Api/obj/Vms.Api.json "$GITHUB_WORKSPACE/zap/openapi.json"
 
       # The SAME image the pipeline publishes, in Production mode.
+      # FIND-11: the API refuses to start without an encryption key. This run
+      # gets a throwaway key - random, used once, never stored anywhere.
       - name: Start the API
         run: |
+          KEY=$(openssl rand -base64 32)
+          echo "::add-mask::$KEY"
           docker build -t vms-api:dast backend
           docker network create dast
-          docker run -d --name api --network dast -p 127.0.0.1:8080:8080 vms-api:dast
+          docker run -d --name api --network dast -p 127.0.0.1:8080:8080 \
+            -e Encryption__ActiveKeyId=dast -e Encryption__Keys__dast="$KEY" \
+            vms-api:dast
+
 
       - name: Wait until the API is up
         run: |

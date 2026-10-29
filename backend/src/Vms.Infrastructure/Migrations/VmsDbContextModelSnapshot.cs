@@ -17,7 +17,7 @@ namespace Vms.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -46,8 +46,8 @@ namespace Vms.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(10000)
-                        .HasColumnType("character varying(10000)");
+                        .HasMaxLength(40064)
+                        .HasColumnType("character varying(40064)");
 
                     b.Property<DateTimeOffset>("DiscoveredAt")
                         .HasColumnType("timestamp with time zone");
@@ -56,8 +56,8 @@ namespace Vms.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ReporterEmail")
-                        .HasMaxLength(320)
-                        .HasColumnType("character varying(320)");
+                        .HasMaxLength(1344)
+                        .HasColumnType("character varying(1344)");
 
                     b.Property<string>("Severity")
                         .IsRequired()
