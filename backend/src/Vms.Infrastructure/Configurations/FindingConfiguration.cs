@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vms.Domain.Entities;
+using Vms.Infrastructure.Security;
+
 
 namespace Vms.Infrastructure.Configurations;
 
@@ -15,11 +17,18 @@ public class FindingConfiguration : IEntityTypeConfiguration<Finding>
         // public form in Step 4 (T-ER-06, resource exhaustion). Without them
         // PostgreSQL accepts unbounded text.
         builder.Property(f => f.Title).HasMaxLength(200).IsRequired();
-        builder.Property(f => f.Description).HasMaxLength(10_000).IsRequired();
+        // Encrypted columns (FIND-11) store ciphertext, which is longer than the
+        // text. The 10,000-character cap on the text is enforced by the DTO; the
+        // column is sized for the longest ciphertext that text can produce.
+        builder.Property(f => f.Description)
+               .HasMaxLength(AesGcmFieldEncryptor.MaxStoredLength(10_000)).IsRequired();
+
         builder.Property(f => f.AffectedAsset).HasMaxLength(200).IsRequired();
         builder.Property(f => f.AssigneeUsername).HasMaxLength(100);
         builder.Property(f => f.CreatedByUsername).HasMaxLength(100);
-        builder.Property(f => f.ReporterEmail).HasMaxLength(320); // RFC 5321 max
+        builder.Property(f => f.ReporterEmail)
+               .HasMaxLength(AesGcmFieldEncryptor.MaxStoredLength(320)); // RFC 5321 max
+
 
         // Enums as STRINGS. Stored as integers, reordering the enum silently
         // changes the meaning of every existing row — a real integrity hazard
