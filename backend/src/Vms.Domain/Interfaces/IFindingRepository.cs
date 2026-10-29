@@ -12,7 +12,7 @@ public interface IFindingRepository
     Task<Finding?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<Finding?> GetByIdForUpdateAsync(Guid id, CancellationToken ct = default);
     Task<(IReadOnlyList<Finding> Items, int Total)> SearchAsync(
-        FindingStatus? status, Severity? severity, string? assignee,
+        FindingStatus? status, Severity? severity, string? assignee, string? asset,
         int page, int pageSize, CancellationToken ct = default);
     Task AddAsync(Finding finding, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);

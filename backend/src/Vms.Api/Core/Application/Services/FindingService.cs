@@ -14,14 +14,14 @@ public class FindingService(IFindingRepository repo, IMapper mapper) : IFindingS
     private const int MaxPageSize = 100;
 
     public async Task<PagedResult<FindingDto>> SearchAsync(
-        FindingStatus? status, Severity? severity, string? assignee,
+        FindingStatus? status, Severity? severity, string? assignee, string? asset,
         int page, int pageSize, CancellationToken ct = default)
     {
         // T-API-10: an unbounded list endpoint is a denial-of-service primitive.
         pageSize = Math.Clamp(pageSize, 1, MaxPageSize);
         page = Math.Max(page, 1);
 
-        var (items, total) = await repo.SearchAsync(status, severity, assignee, page, pageSize, ct);
+        var (items, total) = await repo.SearchAsync(status, severity, assignee, asset, page, pageSize, ct);
         return new PagedResult<FindingDto>(
             total, page, pageSize,
             items.Select(mapper.Map<FindingDto>).ToList());

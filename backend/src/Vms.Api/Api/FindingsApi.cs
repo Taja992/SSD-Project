@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ public static class FindingsApi
 
         api.MapGet("/", SearchFindings)
             .WithName("Search findings.")
-            .WithDescription("Filters by status, severity and assignee. Paged, max 100 per page.");
+            .WithDescription("Filters by status, severity, assignee and affected asset. Paged, max 100 per page.");
 
         api.MapGet("/{findingId:guid}", GetFinding)
             .WithName("Get finding.")
@@ -50,15 +51,16 @@ public static class FindingsApi
 
     public static async Task<Ok<PagedResult<FindingDto>>> SearchFindings(
         [FromServices] IFindingService findingService,
+        [MaxLength(100)] string? assignee,
+        [MaxLength(200)] string? asset,
         FindingStatus? status,
         Severity? severity,
-        string? assignee,
         CancellationToken cancellationToken,
         int page = 1,
         int pageSize = 25)
     {
         var result = await findingService.SearchAsync(
-            status, severity, assignee, page, pageSize, cancellationToken);
+            status, severity, assignee, asset, page, pageSize, cancellationToken);
         return TypedResults.Ok(result);
     }
 

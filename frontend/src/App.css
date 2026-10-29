@@ -327,3 +327,201 @@
 .toast[data-tone="danger"] .toast-status { background: var(--danger-bg); color: var(--danger); }
 
 .toast-msg { color: var(--text); }
+
+/* ===================================================================
+   Tracker (Step 8) — the real app around the test harness.
+   =================================================================== */
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 28px;
+}
+
+.nav { display: flex; gap: 4px; flex: 1; }
+
+.nav a {
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  text-decoration: none;
+  font: 13px/1 var(--mono);
+}
+
+.nav a:hover,
+.nav a.active { color: var(--text-strong); background: var(--bg-raised); }
+
+.whoami {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 13px/1 var(--mono);
+}
+
+/* --- Page furniture ---------------------------------------------- */
+
+.page-head { display: flex; align-items: baseline; gap: 12px; }
+
+.page-title {
+  font: 600 20px/1.3 var(--mono);
+  color: var(--text-strong);
+  margin: 0 0 16px;
+}
+
+.muted { color: var(--text-muted); font-size: 13px; }
+.mono { font-family: var(--mono); font-size: 13px; }
+.empty { color: var(--text-muted); padding: 32px 0; text-align: center; }
+
+.back {
+  display: inline-block;
+  margin-bottom: 16px;
+  font: 13px/1 var(--mono);
+  color: var(--info);
+  text-decoration: none;
+}
+
+.back:hover { text-decoration: underline; }
+
+/* --- Inputs ------------------------------------------------------ */
+
+input,
+select,
+textarea {
+  font: 14px/1.4 var(--sans);
+  color: var(--text);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+}
+
+textarea { resize: vertical; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.filters input { min-width: 200px; }
+
+/* --- Findings table ---------------------------------------------- */
+
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+.table th {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  font: 11px/1 var(--mono);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+
+.table tbody tr:hover { background: var(--bg-raised); }
+.table a { color: var(--info); text-decoration: none; }
+.table a:hover { text-decoration: underline; }
+
+.overdue { color: var(--danger); font-weight: 600; }
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+/* --- Badges -------------------------------------------------------
+   Severity is the one place colour stands for RISK rather than an
+   HTTP outcome. Critical shares red with "danger" on purpose.      */
+
+.badge {
+  display: inline-block;
+  padding: 4px 7px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font: 600 11px/1 var(--mono);
+  color: var(--text-muted);
+}
+
+.badge[data-severity="Critical"],
+.badge[data-tone="danger"] { color: var(--danger); background: var(--danger-bg); border-color: transparent; }
+.badge[data-severity="High"]   { color: var(--warn); background: var(--warn-bg); border-color: transparent; }
+.badge[data-severity="Medium"] { color: var(--info); background: var(--info-bg); border-color: transparent; }
+
+.status-label { font: 12px/1 var(--mono); }
+.status-label[data-status="Remediated"] { color: var(--ok); }
+
+/* --- Detail page ------------------------------------------------- */
+
+.detail { max-width: 760px; }
+.detail-badges { display: flex; gap: 8px; margin-bottom: 20px; }
+
+.meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 20px;
+  margin: 0 0 24px;
+  font-size: 14px;
+}
+
+.meta dt { color: var(--text-muted); }
+.meta dd { margin: 0; }
+
+/* Keeps the reporter's line breaks; breaks very long unbroken strings. */
+.description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0 0 28px;
+  padding: 16px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* --- Forms ------------------------------------------------------- */
+
+.panel {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.form { display: flex; flex-direction: column; gap: 14px; }
+.form .btn-primary { width: auto; align-self: flex-start; }
+.btn-primary:disabled { opacity: 0.6; cursor: wait; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font: 12px/1 var(--mono); color: var(--text-muted); }
+.field-hint { font-size: 12px; color: var(--text-muted); }
+.field-error { font-size: 12px; color: var(--danger); }
+
+.banner {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-left: 3px solid;
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+
+.banner[data-tone="ok"]     { background: var(--ok-bg);     border-color: var(--ok); }
+.banner[data-tone="warn"]   { background: var(--warn-bg);   border-color: var(--warn); }
+.banner[data-tone="danger"] { background: var(--danger-bg); border-color: var(--danger); }
+.banner[data-tone="info"]   { background: var(--info-bg);   border-color: var(--info); }
+
+.probes-page { max-width: 760px; }
