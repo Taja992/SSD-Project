@@ -7,7 +7,7 @@ namespace Vms.Api.Core.Application.Interfaces;
 public interface IFindingService
 {
     Task<PagedResult<FindingDto>> SearchAsync(
-        FindingStatus? status, Severity? severity, string? assignee,
+        FindingStatus? status, Severity? severity, string? assignee, string? asset,
         int page, int pageSize, CancellationToken ct = default);
 
     Task<FindingDto?> GetAsync(Guid id, CancellationToken ct = default);
