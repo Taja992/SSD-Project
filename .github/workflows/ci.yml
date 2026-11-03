@@ -96,7 +96,7 @@ jobs:
 
   # ------------------------------------------------------------------- 8
   push-image:
-    name: API image to ghcr.io
+    name: Container images to ghcr.io
     needs: [backend, frontend, sca]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
@@ -130,3 +130,29 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      # The frontend normally deploys to Firebase as static files. This image
+      # exists only so the whole stack can be handed to a tester as images
+      # (see pentest/docker-compose.yml) instead of a repo they must build.
+      #
+      # VITE_* values are inlined into the bundle at BUILD time and ship to
+      # every visitor, so they must never hold a secret. These are the
+      # localhost URLs the pen-test compose file expects.
+      - id: meta-web
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ghcr.io/${{ github.repository }}/vms-web
+          tags: |
+            type=sha,format=long
+            type=ref,event=branch
+
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: frontend
+          push: true
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
+          build-args: |
+            VITE_KEYCLOAK_AUTHORITY=http://localhost:8080/realms/vms
+            VITE_KEYCLOAK_CLIENT_ID=vms-frontend
+            VITE_API_URL=http://localhost:5148
