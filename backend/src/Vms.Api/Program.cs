@@ -21,6 +21,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.RequireHttpsMetadata =
             builder.Configuration.GetValue("Keycloak:RequireHttpsMetadata", true);
 
+        // Where the API FETCHES signing keys, which is not always the same URL
+        // the token was issued from. Behind container networking the browser
+        // reaches Keycloak at localhost:8080 (so that is the `iss` claim), while
+        // this process must reach it at keycloak:8080 on the internal network.
+        //
+        // Unset — the normal case, including production — this falls back to
+        // Authority's own discovery document, so behaviour is unchanged.
+        //
+        // NOTE: this changes only where keys are fetched. ValidIssuer below
+        // still pins the issuer to Authority, so a token minted by a different
+        // Keycloak is still rejected (T-API-02).
+        var metadataAddress = builder.Configuration["Keycloak:MetadataAddress"];
+        if (!string.IsNullOrWhiteSpace(metadataAddress))
+        {
+            options.MetadataAddress = metadataAddress;
+        }
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             // T-API-01: every one of these must be on. The signature check is
