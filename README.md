@@ -19,18 +19,19 @@ Only **Docker Desktop**. No .NET, no Node, no code editor.
 
 ## Start the app (one command)
 
-Open a terminal, go to any empty folder, and paste **one** of these.
+Open a terminal and paste **one** of these. It makes a folder called
+`vms-test` wherever your terminal is, and puts everything inside it.
 
 **Mac / Linux / Git Bash:**
 
 ```bash
-curl -fsSL https://codeload.github.com/Taja992/SSD-Project/tar.gz/main | tar -xz --strip-components=1 SSD-Project-main/pentest && cd pentest && docker compose up
+mkdir -p vms-test && cd vms-test && curl -fsSL https://codeload.github.com/Taja992/SSD-Project/tar.gz/main | tar -xz --strip-components=1 SSD-Project-main/pentest && cd pentest && docker compose up
 ```
 
 **Windows PowerShell:**
 
 ```powershell
-curl.exe -fsSL -o vms.tgz https://codeload.github.com/Taja992/SSD-Project/tar.gz/main; tar -xzf vms.tgz --strip-components=1 SSD-Project-main/pentest; cd pentest; docker compose up
+mkdir -Force vms-test | Out-Null; cd vms-test; curl.exe -fsSL -o vms.tgz https://codeload.github.com/Taja992/SSD-Project/tar.gz/main; tar -xzf vms.tgz --strip-components=1 SSD-Project-main/pentest; cd pentest; docker compose up
 ```
 
 The first start takes a few minutes. Leave the terminal open — when the
@@ -68,21 +69,8 @@ Tip: the browser's **DevTools → Network** tab shows every request the app
 sends. You can copy one, change it, and send it again — the buttons in the
 page are not the only way in.
 
-More detail for experienced testers (scope, what counts as a finding):
-[`pentest/README.md`](pentest/README.md)
-
----
-
-## Found something?
-
-**Send it to the project owner directly — do not open a GitHub issue.** The
-repository is public, and a vulnerability report is a recipe for an attack.
-
-Include:
-
-1. Which user you were logged in as
-2. What you did, step by step
-3. What happened, and what you expected to happen
+**Before you start, read the rules** — what is in scope, and what is already
+known so you don't report it: [`pentest/README.md`](pentest/README.md)
 
 ---
 
@@ -94,7 +82,8 @@ Press `Ctrl+C` in the terminal. To delete everything and start fresh next time:
 docker compose down -v
 ```
 
-(Run it from inside the `pentest` folder.)
+(Run it from inside `vms-test/pentest`.) After that you can delete the whole
+`vms-test` folder — that is everything.
 
 ---
 
