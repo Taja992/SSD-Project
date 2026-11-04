@@ -14,7 +14,7 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-oidc-context": "^3.3.1",
-    "react-router": "8.5.0"
+    "react-router": "8.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -27,7 +27,7 @@
     "eslint-plugin-react-refresh": "^0.5.6",
     "globals": "^17.13.0",
     "typescript": "~6.0.2",
-    "typescript-eslint": "^8.72.0",
+    "typescript-eslint": "^8.72.1",
     "vite": "^8.3.5"
   },
   "packageManager": "pnpm@12.5.1+sha512.e3f305bc784a2bc89f5ad3b6138889470fae8d2af5f36b61216ec91c2c3d64089775f9de38aac331044ea40f245cb0d5666392dfdf65824e1907ef6a2c62de5f"
