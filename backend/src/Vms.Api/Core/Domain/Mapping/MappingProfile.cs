@@ -8,7 +8,8 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        // Outbound. MaxDepth mitigates GHSA-rvv3-g6hj-g44x (recursion DoS).
+        // Outbound. MaxDepth is defence in depth against recursion DoS; the
+        // CVEs themselves are fixed by the 17.0.0 upgrade.
         CreateMap<Entities.Finding, FindingDto>()
             .MaxDepth(5)
             .ForMember(d => d.Severity, o => o.MapFrom(s => s.Severity.ToString()))

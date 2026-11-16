@@ -10,10 +10,6 @@ updates:
     groups:
       nuget-minor-and-patch:
         update-types: [minor, patch]
-    ignore:
-      # v15+ needs a commercial licence. Accepted risk, see .trivyignore.yaml.
-      - dependency-name: AutoMapper
-        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm # pnpm uses the npm ecosystem
     directory: /frontend
