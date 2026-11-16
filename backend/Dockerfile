@@ -21,7 +21,7 @@ RUN dotnet publish src/Vms.Api/Vms.Api.csproj --configuration Release --output /
 # =====================================================================
 # Runtime stage
 # =====================================================================
-FROM mcr.microsoft.com/dotnet/aspnet:10.0@sha256:de0ee358cdd672f7017a003bed21e9ac9ed48a27c922a59b18175b6e82fa7fee AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0@sha256:bfd912c83295ce66d4b706ebb8541b9f14259b0e76fbb88b2751f58ce2399d2e AS runtime
 WORKDIR /app
 COPY --from=build /app .
 
