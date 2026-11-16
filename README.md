@@ -4,16 +4,7 @@ A small app for tracking security bugs ("findings") in software: someone
 reports a bug, an analyst sorts it, a developer fixes it.
 
 This is a Secure Software Development exam project. **You are invited to
-attack it** — that is how we find out if the security actually works.
-
----
-
-## What you need
-
-Only **Docker Desktop**. No .NET, no Node, no code editor.
-
-1. Install it from <https://www.docker.com/products/docker-desktop/>
-2. Start it, and wait until it says it is running
+attack it**
 
 ---
 
@@ -84,14 +75,3 @@ docker compose down -v
 
 (Run it from inside `vms-test/pentest`.) After that you can delete the whole
 `vms-test` folder — that is everything.
-
----
-
-## Something broke?
-
-| Problem | Try |
-|---|---|
-| `docker: command not found` | Docker Desktop is not installed or not running |
-| Page will not load | Wait a minute — the login server starts slowly |
-| "Port already in use" | Something else uses port 5173, 8080 or 5148. Close it |
-| Login loops or fails | Wait 30 seconds and try again |
