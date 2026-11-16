@@ -7,10 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- GHSA-rvv3-g6hj-g44x: AutoMapper DoS via uncontrolled recursion.
-         Mitigated via MaxDepth(5) in MappingProfile.cs. v15+ requires a
-         commercial licence; 14.0.0 is the last MIT release. -->
-    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <!-- AutoMapper 15+ is dual licensed (RPL-1.5 / commercial). This project
+         uses the free Community licence (student coursework). No key is needed
+         outside production; without one AutoMapper only logs a warning.
+         17.0.0 fixes CVE-2026-32933, CVE-2026-128081 and CVE-2026-128082. -->
+    <PackageReference Include="AutoMapper" Version="17.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.13">
