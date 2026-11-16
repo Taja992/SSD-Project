@@ -10,6 +10,17 @@ updates:
     groups:
       nuget-minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # These follow the .NET major version: 11.x requires net11.0. Stay on
+      # .NET 10 LTS until a deliberate migration (see the docker block below).
+      - dependency-name: Microsoft.AspNetCore.*
+        update-types: ["version-update:semver-major"]
+      - dependency-name: Microsoft.EntityFrameworkCore*
+        update-types: ["version-update:semver-major"]
+      - dependency-name: Microsoft.Extensions.*
+        update-types: ["version-update:semver-major"]
+      - dependency-name: Npgsql.EntityFrameworkCore.PostgreSQL
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm # pnpm uses the npm ecosystem
     directory: /frontend
@@ -27,6 +38,14 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    ignore:
+      # The images must match <TargetFramework>net10.0</TargetFramework>:
+      # aspnet:11.0 has no .NET 10 runtime, so the API container won't start.
+      # .NET 10 is LTS (Long-Term Support, to Nov 2028). Moving to 11 is a
+      # deliberate migration (TargetFramework, packages, CI), not a bot PR.
+      # Patches to 10.0 still arrive.
+      - dependency-name: dotnet/*
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
