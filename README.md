@@ -67,11 +67,40 @@ known so you don't report it: [`pentest/README.md`](pentest/README.md)
 
 ## Stop the app
 
-Press `Ctrl+C` in the terminal. To delete everything and start fresh next time:
+Press `Ctrl+C` in the terminal. That stops the app but keeps its data, so
+`docker compose up` from the same folder starts it again where you left off.
+
+### Remove everything
+
+Run these from inside `vms-test/pentest`, the folder the start command left
+you in.
+
+**1. Delete the containers and their data:**
 
 ```bash
 docker compose down -v
 ```
 
-(Run it from inside `vms-test/pentest`.) After that you can delete the whole
-`vms-test` folder — that is everything.
+**2. Delete the downloaded files.** This goes up two folders and deletes
+`vms-test`:
+
+**Mac / Linux / Git Bash:**
+
+```bash
+cd ../.. && rm -rf vms-test
+```
+
+**Windows PowerShell:**
+
+```powershell
+cd ..\..; Remove-Item -Recurse -Force vms-test
+```
+
+**3. (Optional) Delete the downloaded images** to free about 1 GB of disk space:
+
+```bash
+docker rmi ghcr.io/taja992/ssd-project/vms-api:main ghcr.io/taja992/ssd-project/vms-web:main quay.io/keycloak/keycloak:26.0 postgres:16.4-alpine
+```
+
+Skip step 3 if you use Keycloak or Postgres images in other projects. If you
+keep them, the next start is faster.
