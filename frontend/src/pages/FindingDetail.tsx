@@ -5,10 +5,10 @@ import { useSession } from "../session";
 import { Banner, Field, SeverityBadge, StatusLabel } from "../ui";
 import {
   SEVERITIES,
-  STATUSES,
   STATUS_LABELS,
   formatDate,
   isOverdue,
+  statusChoices,
   toDateInput,
   type Finding,
 } from "../types";
@@ -19,7 +19,7 @@ type Outcome = { tone: "ok" | "danger"; text: string } | null;
 export default function FindingDetail() {
   const { id = "" } = useParams();
   const api = useApi();
-  const { username, isAnalystOrPm } = useSession();
+  const { username, isAnalystOrPm, isDeveloper } = useSession();
   const [loaded, setLoaded] = useState<Loaded | null>(null);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function FindingDetail() {
 
   // UX only: mirrors Finding.IsEditableBy, so we do not offer a form the API
   // will refuse. The API still checks every single request (T-API-03).
-  const canEdit = isAnalystOrPm || f.assigneeUsername === username;
+  const canEdit = isAnalystOrPm || (isDeveloper && f.assigneeUsername === username);
 
   return (
     <article className="detail">
@@ -91,10 +91,10 @@ export default function FindingDetail() {
       <p className="description">{f.description}</p>
 
       {canEdit ? (
-        <EditForm finding={f} onSaved={replace} />
+        <EditForm finding={f} isAnalystOrPm={isAnalystOrPm} onSaved={replace} />
       ) : (
         <p className="muted">
-          Read-only — only the assignee, an Analyst or a PM can edit this finding.
+          Read-only — only the assigned Developer, an Analyst or a PM can edit this finding.
         </p>
       )}
 
@@ -103,7 +103,15 @@ export default function FindingDetail() {
   );
 }
 
-function EditForm({ finding, onSaved }: { finding: Finding; onSaved: (f: Finding) => void }) {
+function EditForm({
+  finding,
+  isAnalystOrPm,
+  onSaved,
+}: {
+  finding: Finding;
+  isAnalystOrPm: boolean;
+  onSaved: (f: Finding) => void;
+}) {
   const api = useApi();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [outcome, setOutcome] = useState<Outcome>(null);
@@ -148,8 +156,9 @@ function EditForm({ finding, onSaved }: { finding: Finding; onSaved: (f: Finding
         <input name="affectedAsset" defaultValue={finding.affectedAsset} required maxLength={200} />
       </Field>
       <Field label="Status" errors={errors.status}>
-        <select name="status" defaultValue={finding.status}>
-          {STATUSES.map((s) => (
+        {/* key: after a save the choices change, so remount to pick up the new default */}
+        <select key={finding.status} name="status" defaultValue={finding.status}>
+          {statusChoices(finding.status, isAnalystOrPm).map((s) => (
             <option key={s} value={s}>
               {STATUS_LABELS[s]}
             </option>

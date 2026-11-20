@@ -16,6 +16,7 @@ export function useSession() {
     username: auth.user?.profile.preferred_username ?? "unknown",
     roles,
     isAnalystOrPm: roles.includes("Analyst") || roles.includes("PM"),
+    isDeveloper: roles.includes("Developer"),
     signOut: () => void auth.removeUser(),
   };
 }

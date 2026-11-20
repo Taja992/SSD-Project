@@ -15,6 +15,20 @@ export const STATUS_LABELS: Record<FindingStatus, string> = {
   AcceptedRisk: "Accepted risk",
 };
 
+/**
+ * The statuses to offer in the edit form. UX only: mirrors Finding.CanMoveTo,
+ * so a Developer is not shown a choice the API will refuse (T-API-04).
+ */
+export function statusChoices(current: FindingStatus, isAnalystOrPm: boolean): FindingStatus[] {
+  if (isAnalystOrPm) return [...STATUSES];
+  const next: Partial<Record<FindingStatus, FindingStatus>> = {
+    Triaged: "InProgress",
+    InProgress: "Remediated",
+  };
+  const step = next[current];
+  return step ? [current, step] : [current];
+}
+
 /** Mirrors FindingDto. ReporterEmail is absent on purpose - the API never sends it. */
 export type Finding = {
   id: string;
