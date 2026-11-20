@@ -60,9 +60,14 @@ public class FindingService(IFindingRepository repo, IMapper mapper) : IFindingS
         // ---- T-API-03. THE check. Without it any Developer edits any finding.
         var username = user.FindFirstValue("preferred_username");
         var isAnalystOrPm = user.IsInRole("Analyst") || user.IsInRole("PM");
+        var isDeveloper = user.IsInRole("Developer");
 
-        if (username is null || !finding.IsEditableBy(username, isAnalystOrPm))
+        if (username is null || !finding.IsEditableBy(username, isAnalystOrPm, isDeveloper))
             throw new ForbiddenException("Not permitted to edit this finding.");
+
+        // ---- T-API-04. Allowed to edit is not the same as allowed to close.
+        if (!finding.CanMoveTo(dto.Status, isAnalystOrPm))
+            throw new ForbiddenException("Not permitted to set this status.");
         // ----------------------------------------------------------------
 
         // Assigned by hand, not by AutoMapper. Four fields, visibly four.

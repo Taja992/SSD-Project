@@ -95,6 +95,8 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("PmOnly",      p => p.RequireRole("PM"));
     options.AddPolicy("AnalystOrPm", p => p.RequireRole("Analyst", "PM"));
     options.AddPolicy("AnyStaff",    p => p.RequireRole("Developer", "Analyst", "PM", "Auditor"));
+    // Every role that may write anything. Auditor is absent on purpose (Q2).
+    options.AddPolicy("Editors",     p => p.RequireRole("Developer", "Analyst", "PM"));
 
     // Deny by default: every endpoint needs authentication unless it opts out
     // with .AllowAnonymous(). Principle 1 in the project plan.

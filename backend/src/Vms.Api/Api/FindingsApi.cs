@@ -33,8 +33,9 @@ public static class FindingsApi
             .WithDescription("Analyst/PM only. Status and source are set by the server.");
 
         api.MapPut("/{findingId:guid}", UpdateFinding)
+            .RequireAuthorization("Editors")
             .WithName("Update finding.")
-            .WithDescription("Assignee, Analyst or PM only - enforced per record, not by role alone.");
+            .WithDescription("Assigned Developer, Analyst or PM only - enforced per record, not by role alone. A Developer may only move Triaged -> InProgress -> Remediated.");
 
         api.MapPost("/{findingId:guid}/triage", TriageFinding)
             .RequireAuthorization("AnalystOrPm")
